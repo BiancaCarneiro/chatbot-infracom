@@ -82,9 +82,11 @@ def client():
 
     sentence = input("Input lowercase sentence:")
     #checksum(sentence)
-
-    clientSocket.send(sentence.encode())
-    clientSocket.send(checksum(sentence).encode())
+    packet = checksum(sentence) + sentence
+    # print(packet)
+    # clientSocket.send(sentence.encode())
+    # clientSocket.send(checksum(sentence).encode())
+    clientSocket.send(packet.encode())
 
     modifiedSentence = clientSocket.recv(1024) #1024 = tamanho do buffer
 

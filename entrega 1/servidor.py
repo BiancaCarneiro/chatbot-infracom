@@ -86,8 +86,13 @@ def server():
 
         connectionSocket, addr = serverSocket.accept()
 
-        sentence = connectionSocket.recv(1024).decode()
-        cksum = connectionSocket.recv(1024).decode()
+        # sentence = connectionSocket.recv(1024).decode()
+        # cksum = connectionSocket.recv(1024).decode()
+        packet = connectionSocket.recv(1024).decode()
+        cksum = packet[0:16]
+        sentence = packet[16:]
+        print(cksum)
+        print(sentence)
 
         print(sentence, cksum)
         print(type(cksum))
