@@ -1,4 +1,5 @@
 import socket
+from checksum import *
 
 localIP    = "127.0.0.1"
 localPort  = 20001
@@ -15,10 +16,13 @@ print("Servido ligado e ouvindo")
 while(True):
     bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
     
-    message = bytesAddressPair[0]
+    packet = bytesAddressPair[0]
     address = bytesAddressPair[1]
     
-    print(address, message)
+    message = packet[16:]
+    cksum = packet[0:16]
+    
+    print(address, cksum, message)
 
     # Sending a reply to client
     UDPServerSocket.sendto(message, address)
