@@ -16,7 +16,7 @@ print("Servido ligado e ouvindo")
 while(True):
     bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
     
-    packet = bytesAddressPair[0]
+    packet = bytesAddressPair[0].decode()
     address = bytesAddressPair[1]
     
     message = packet[16:]
@@ -25,4 +25,4 @@ while(True):
     print(address, cksum, message)
 
     # Sending a reply to client
-    UDPServerSocket.sendto(message, address)
+    UDPServerSocket.sendto(message.encode(), address)
