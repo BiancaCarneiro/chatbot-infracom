@@ -1,3 +1,17 @@
+import time 
+
+
+class Temporizador:
+    def __init__(self):
+        self._tempo_inicial = None
+
+    def tempo_atual(self):
+        return time.perf_counter() - self._tempo_inicial
+
+    def reset(self):
+        self._tempo_inicial = time.perf_counter()
+
+
 def tobits(s):
     result = []
     for c in s:
@@ -15,7 +29,14 @@ def bin_add(bin_nums):
     string = str(bin(sum)).split('b')
     return string[1]
         
-def checksum(entry):
+def verify_check(calculated, recieved):
+    chunk_size = 16
+    for i in range(chunk_size):
+        if (calculated[i] == '0' and recieved[i] == '0') or (calculated[i] == '1' and recieved[i] == '1'):
+            return False
+    return True
+
+def checksum(entry, compl_1=True):
     chunk_size = 16
     cksum = 0
     data = tobits(entry)
@@ -52,16 +73,16 @@ def checksum(entry):
         
     #print(cksum)
     #print(len(cksum))
-    
-    list_cs = []
-    list_cs[:0] = cksum
-    cksum = list_cs
-    for i in range(0, chunk_size):
-        if cksum[i] == '0':
-            cksum[i] = '1'
-        else:
-            cksum[i] = '0'
-    cksum = "".join(cksum)       
+    if compl_1:
+        list_cs = []
+        list_cs[:0] = cksum
+        cksum = list_cs
+        for i in range(0, chunk_size):
+            if cksum[i] == '0':
+                cksum[i] = '1'
+            else:
+                cksum[i] = '0'
+        cksum = "".join(cksum)       
     #print('final = ', cksum)
     #print('int = ', int(cksum, 2))
      
