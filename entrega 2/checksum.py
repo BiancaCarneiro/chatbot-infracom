@@ -1,16 +1,3 @@
-import time 
-
-
-class Temporizador:
-    def __init__(self):
-        self._tempo_inicial = None
-
-    def tempo_atual(self):
-        return time.perf_counter() - self._tempo_inicial
-
-    def reset(self):
-        self._tempo_inicial = time.perf_counter()
-
 
 def tobits(s):
     result = []
