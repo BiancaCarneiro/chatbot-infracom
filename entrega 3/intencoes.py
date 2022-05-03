@@ -37,6 +37,13 @@ def conta_mesa(dict, mesa):
             conta += dict['conta_i'][i]
     return conta
 
+def conta_mesa_alt(dict, mesa):
+    conta = 0
+    for i in range(len(dict['mesa'])):
+        if dict['mesa'][i] == mesa:
+            conta += DICT_PRECOS_EXT[dict['pedidos'][i]]
+    return conta
+
 '''
 def conta_individual(dict, nome):
     
@@ -49,6 +56,26 @@ def conta_individual(dict, nome):
     return pedidos
 
 '''
+
+def informa_conta_individual(dict):
+    AUXTABLE = {}
+    
+    for i in range(len(dict['nome'])):
+        if dict['nome'][i] in AUXTABLE.keys():
+            AUXTABLE[dict['nome'][i]].append(dict['pedidos'][i])
+        else:
+            AUXTABLE[dict['nome'][i]] = [dict['pedidos'][i]]
+
+    for i in AUXTABLE:
+        print("| " + i + " |\n")
+        total = 0
+        for j in AUXTABLE[i]:
+            pedido = j
+            preco = DICT_PRECOS_EXT[pedido]
+            total+=preco
+            print(pedido + " => R$ " + str(preco))
+        print("Total - R$ " + str(total) + "\n")  
+
 
 def retorna_opc_str(opc):
     if opc == 0:
