@@ -1,9 +1,13 @@
 # Lista de intenções do chatbot
+# Quando o cliente digitou aquela mensagem, qual era a intenção por trás dela? Esse arquivo tenta descobrir!
 
+# String do menu do chatbot
 LISTA_OPCOES = "Digite uma das opcoes a seguir (o numero ou por extenso)\n1 - cardapio\n2 - pedido\n3 - conta individual\n4 - nao fecho com robo, chame seu gerente\n5 - nada nao, tava so testando\n6 - conta da mesa"
-                
-CARDAPIO = f"{'-'*25}\nPRATOS PRINCIPAIS (individuais)\n{'-'*25}\n1 - Frango a Parmegiana => R$20,00\n2 - Salada Caesar => R$17,00\n3 - Strogonoff de Frango => R$19,00\n\n{'-'*25}\nSOBREMESAS\n{'-'*25}\n4 - Torta de Limao => R$5,00\n5 - Brigadeiro => R$0,50\n\n{'-'*25}\nBEBIDAS\n6 - Limonada => R$4,00\n7 - Refrigerante => R$5,00\n{'-'*25}\n\n{LISTA_OPCOES}"                
 
+       # valores do cardapio indexados pelo nome do pedido         
+CARDAPIO = f"\n{'-'*25}\nPRATOS PRINCIPAIS (individuais)\n{'-'*25}\n1 - Frango a Parmegiana => R$20,00\n2 - Salada Caesar => R$17,00\n3 - Strogonoff de Frango => R$19,00\n\n{'-'*25}\nSOBREMESAS\n{'-'*25}\n4 - Torta de Limao => R$5,00\n5 - Brigadeiro => R$0,50\n\n{'-'*25}\nBEBIDAS\n{'-'*25}\n6 - Limonada => R$4,00\n7 - Refrigerante => R$5,00\n{'-'*25}\n\n{LISTA_OPCOES}"                
+
+# mesmos valores, indexados por um numero
 DICT_PRECOS_EXT = {'frango a parmegiana': 20.0,
                'salada caesar': 17.0,
                'strogonoff de frango': 19.0,
@@ -38,6 +42,7 @@ def retorna_preco(string):
     return conta'''
 
 # Busca pedidos feitos na mesa, e retorna o resultado
+# Iterando dentro da tabela, quando encontrar a mesa procurada, busca todos os pedidos feitos
 def conta_mesa_alt(dict, mesa):
     conta = 0
     for i in range(len(dict['mesa'])):
@@ -48,8 +53,10 @@ def conta_mesa_alt(dict, mesa):
     return conta
 
 
-# Faz uma busca, e imprime no terminal a relação de clientes, o que cada um consumiu, e quanto ele consumiu
+# Faz uma busca, e concatena na string output as informações de todos os pedidos
 def informa_conta_individual(dict):
+    # Tabela auxiliar - todo nome que aparecer na TABELA vai ser guardado aqui (sem duplicatas)
+    # Guarda os pedidos associados a cada nome
     AUXTABLE = {}
     output = ""
     for i in range(len(dict['nome'])):
@@ -58,7 +65,8 @@ def informa_conta_individual(dict):
             AUXTABLE[dict['nome'][i]] += dict['pedidos'][i]
         else:
             AUXTABLE[dict['nome'][i]] = dict['pedidos'][i]
-
+   
+    # cria uma string para output
     print(AUXTABLE)
     for i in AUXTABLE:
         #print("| " + i + " |\n")
@@ -75,6 +83,7 @@ def informa_conta_individual(dict):
     
     return output
 
+# retorna a conta de uma pessoa, onde seu ID é o valor do IP:porta
 def conta_ip(dict, id):
     conta = 0
 
@@ -86,6 +95,8 @@ def conta_ip(dict, id):
 
     return conta
 
+# Tratador dos dos pedidos (ALIMENTOS) a serem feitos
+# Pode ser escrito apenas o numero, ou o nome do pedido por extenso
 def trata_pedido(msg):
     if msg.isdigit():
         pedido = int(msg)
@@ -100,6 +111,8 @@ def trata_pedido(msg):
     
     return 0
 
+# Tratador da lista de opções que o usuário pode escolher em LISTA_OPCOES
+# Novamente, pode ser escrito apenas o numero ou por extenso
 def trata_pedir(msg):
     if msg.isdigit():
         return int(msg)
@@ -136,7 +149,7 @@ def trata_pedir(msg):
         else:
             return 2 # pedido
     elif cardapio > 0:
-            return 1
+        return 1
     elif conta > 0 :
         if individual > 0:
             return 3

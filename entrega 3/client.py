@@ -32,7 +32,7 @@ def client():
     # Enviar para o servidor usando o socket UDP criado
     ack = '0'
     UDPClientSocket.sendto(bytesToSend.encode(), serverAddressPort)
-    while msgFromClient != "bye":
+    while True:
         msgFromServer = send_confirmation(UDPClientSocket, ack)
         # depois que ele confirma o recebimento, ele atualiza o ack local
         if ack == '1':
@@ -40,7 +40,7 @@ def client():
         else:
             ack = '1'
             
-        t = time.localtime()
+        t             = time.localtime()
         packet        = msgFromServer[0].decode()
         msg           = f"{time.strftime('%H:%M', t)} CINtofome: " + packet[17:]
         print(msg)

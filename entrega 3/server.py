@@ -28,7 +28,6 @@ def send_data(UDPServerSocket, packet, address): # Função para enviar as infor
             pkt              = bytesAddressPair[0].decode()
             cksum            = pkt[1:17]
             ack              = pkt[0]
-            print(pkt)
             if verify_check(sent_cksum, cksum) and ack == ACKS[client_key]:
                 break
         except socket.timeout:
@@ -55,7 +54,6 @@ def server():
         message = packet[17:]
         cksum   = packet[1:17]
         ack     = packet[0]
-        print(address, message)
         
         client_key = f'{address[0]}:{str(address[1])}'
         if verify_check(checksum(message, compl_1=False), cksum): # Não está corrompido segundo o checksum e o ACK está certo
@@ -74,7 +72,7 @@ def server():
             if ack == ACKS[client_key]:
                 if client_key in CONF_CONTA and CONF_CONTA[client_key]:
                     msg = 'Você pagou sua conta, obrigado!\n' + LISTA_OPCOES
-                if client_key in IS_CONTA and IS_CONTA[client_key]:
+                if client_key in IS_CONTA and IS_CONTA[client_key] and float(message) <= conta_mesa_alt(TABELA, TABELA['mesa'][index]) and float(message) >= conta_ip(TABELA, client_key):
                     VALOR_PAGO[client_key] += float(message)
                     
                 if message == 'levantar' or client_key in IS_CONTA and IS_CONTA[client_key]: 
@@ -118,7 +116,6 @@ def server():
                     # TRATAR O CASO QUE O CLIENTE ENVIA UM NÚMERO INVÁLIDO DE MESA
                     elif TABELA['mesa'][index]:
                         opc = trata_pedir(message) # retorna a opcao que o cliente escolheu
-                        print('escolhido: ',opc)
                         if opc == 1:
                             msg = CARDAPIO
                         if opc == 2:
@@ -134,7 +131,6 @@ def server():
                         if opc == 6:
                             conta = conta_mesa_alt(TABELA, TABELA['mesa'][index])
                             msg = str(conta)
-                            print(conta)
                 print(TABELA)
                 packet = ACKS[client_key] + checksum(msg) + str(msg)
                 send_data(UDPServerSocket, packet, address)
