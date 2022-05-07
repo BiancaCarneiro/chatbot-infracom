@@ -22,22 +22,21 @@ DICT_PRECOS = {'1': 20.0,
                '7': 5.
 }
 
-
+'''
 def retorna_preco(string):
     if len(string)>1:
         if string in DICT_PRECOS_EXT:
             return DICT_PRECOS_EXT[string]
     if string in DICT_PRECOS:
-        return DICT_PRECOS[string]
+        return DICT_PRECOS[string]'''
     
-def conta_mesa(dict, mesa):
+'''def conta_mesa(dict, mesa):
     conta = 0
     for i in range(len(dict['mesa'])):
         if dict['mesa'][i] == mesa:
             conta += dict['conta_i'][i]
-    return conta
+    return conta'''
 
-# Alternativa para conta_mesa
 # Busca pedidos feitos na mesa, e retorna o resultado
 def conta_mesa_alt(dict, mesa):
     conta = 0

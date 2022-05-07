@@ -75,7 +75,7 @@ def server():
                 if client_key in CONF_CONTA and CONF_CONTA[client_key]:
                     msg = 'Você pagou sua conta, obrigado!\n' + LISTA_OPCOES
                 if client_key in IS_CONTA and IS_CONTA[client_key]:
-                    VALOR_PAGO[client_key] += int(message)
+                    VALOR_PAGO[client_key] += float(message)
                     
                 if message == 'levantar' or client_key in IS_CONTA and IS_CONTA[client_key]: 
                     IS_CONTA[client_key] = False
