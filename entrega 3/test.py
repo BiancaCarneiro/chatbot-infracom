@@ -27,7 +27,7 @@ def informa_conta_individual(dict):
         print("| " + i + " |\n")
         total = 0
         for j in AUXTABLE[i]:
-            pedido = j
+            pedido = j.key()
             preco = DICT_PRECOS_EXT[pedido]
             total+=preco
             print(pedido + " => R$ " + str(preco))
@@ -68,9 +68,9 @@ def main():
     TABELA['conta_i'].append(0)
     TABELA['pedidos'].append("refrigerante")
 
-    print(TABELA)
-    print(conta_mesa_alt(TABELA, 2))
-    print(conta_mesa_alt(TABELA, 3))
+    #print(TABELA)
+    #print(conta_mesa_alt(TABELA, 2))
+    #print(conta_mesa_alt(TABELA, 3))
     #index = TABELA['nome'].index("oi")
     #print(index)
 
@@ -80,9 +80,10 @@ def main():
     NEWTABLE['nome'] += 1;
     NEWTABLE['nome'] += 3;
 
-    print(NEWTABLE)
+    #print(NEWTABLE)
 
-    informa_conta_individual(TABELA)
+    print(informa_conta_individual(TABELA))
 
 if __name__ == '__main__':
-    main() 
+    print(trata_pedir('1'))
+    #main() 

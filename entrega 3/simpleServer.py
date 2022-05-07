@@ -6,13 +6,16 @@ TABELA = {
           'socket':[],
           "nome":[],
           "mesa":[],
-          'conta_i':[],
           'pedidos':[]
           }
 
 BUFFERSIZE = 1024
 TIMEOUT    = 1e-100
 ACKS       = {}
+VALOR_PAGO = {}
+IS_PEDIDO  = {}
+CONF_CONTA = {}
+IS_CONTA   = {}
     
 def send_data(UDPServerSocket, packet, address): # Função para enviar as informações ao cliente
     sent_cksum = checksum(packet[17:], compl_1=False)
@@ -56,28 +59,87 @@ def server():
         
         client_key = f'{address[0]}:{str(address[1])}'
         if verify_check(checksum(message, compl_1=False), cksum): # Não está corrompido segundo o checksum e o ACK está certo
+            msg = LISTA_OPCOES
             if client_key not in ACKS.keys():
                 ACKS[client_key] = '0'
+                IS_PEDIDO[client_key] = False
                 TABELA['socket'].append(client_key)
                 TABELA['nome'].append(message)
                 TABELA['mesa'].append(None)
-                TABELA['conta_i'].append(0)
                 TABELA['pedidos'].append(None)
-                msg = ACKS[client_key]+checksum('Digite sua mesa')+'Digite sua mesa'
+                VALOR_PAGO[client_key] = 0
+                msg = 'Digite sua mesa'
                 
+            index = TABELA['socket'].index(client_key) # pego o index do elemento com a chave do cliente
             if ack == ACKS[client_key]:
-                index = TABELA['socket'].index(client_key) # pego o index do elemento com a chave do cliente
-                if not TABELA['mesa'][index] and len(message) < 2:
-                    TABELA['mesa'][index] = message
-                    msg = LISTA_OPCOES
+                if client_key in CONF_CONTA and CONF_CONTA[client_key]:
+                    msg = 'Você pagou sua conta, obrigado!\n' + LISTA_OPCOES
+                if client_key in IS_CONTA and IS_CONTA[client_key]:
+                    VALOR_PAGO[client_key] += int(message)
+                    
+                if message == 'levantar' or client_key in IS_CONTA and IS_CONTA[client_key]: 
+                    IS_CONTA[client_key] = False
+                    if VALOR_PAGO[client_key] == conta_ip(TABELA, client_key):
+                        msg = "Volte sempre"
+                    elif VALOR_PAGO[client_key] == 0:
+                        msg = f"Sua conta foi R$ {conta_ip(TABELA, client_key)-VALOR_PAGO[client_key]} e a da mesa R$ {conta_mesa_alt(TABELA, TABELA['mesa'][index])}. Digite o valor a ser pago"
+                        IS_CONTA[client_key] = True
+                    elif VALOR_PAGO[client_key] > conta_ip(TABELA, client_key) and VALOR_PAGO[client_key] < conta_mesa_alt(TABELA, TABELA['mesa'][index]):
+                        msg = f"Voce esta pagando R$ {VALOR_PAGO[client_key]-conta_ip(TABELA, client_key)} a mais que sua conta. O valor excedente sera distribuído para os outros clientes.  Deseja confirmar o pagamento? (digite sim para confirmar)"
+                        CONF_CONTA[client_key] = True
+                        extra = VALOR_PAGO[client_key]-conta_ip(TABELA, client_key)
+                        num_membros = 0
+                        for i in range(len(TABELA['mesa'])):
+                            if TABELA['mesa'][i] == TABELA['mesa'][index]:
+                                num_membros += 1
+                        num_membros -= 1
+                        if num_membros > 0:
+                            for i in range(len(TABELA['mesa'])):
+                                if TABELA['mesa'][i] == TABELA['mesa'][index] and i != index:
+                                    VALOR_PAGO[TABELA['socket'][i]] += extra/num_membros
+                    else:
+                        msg = f"Sua conta foi R$ {conta_ip(TABELA, client_key)-VALOR_PAGO[client_key]} e a da mesa R$ {conta_mesa_alt(TABELA, TABELA['mesa'][index])}. Digite o valor a ser pago"
+                        IS_CONTA[client_key] = True
+
+                elif IS_PEDIDO[client_key]:
+                    opc = trata_pedido(message)
+                    if opc == 0:
+                        IS_PEDIDO[client_key] = False
+                    else:
+                        keys = list(DICT_PRECOS_EXT.keys())
+                        if not TABELA['pedidos'][index]:
+                            TABELA['pedidos'][index] = [{f"{keys[opc-1]}":DICT_PRECOS_EXT[keys[opc-1]]}]
+                        else:
+                            TABELA['pedidos'][index] += [{f"{keys[opc-1]}":DICT_PRECOS_EXT[keys[opc-1]]}]
+                        msg = 'Gostaria de mais algum item? (número ou por extenso)'
                 else:
-                    opc = trata_pedir(message) # retorna a opcao que o cliente escolheu
-                    if opc == 5:
-                        conta = conta_mesa(TABELA, TABELA['mesa'][index])
-                        print(conta)
+                    if not TABELA['mesa'][index] and len(message) < 2: # vejo se a mesa está preenchida 
+                        TABELA['mesa'][index] = message
+                    # TRATAR O CASO QUE O CLIENTE ENVIA UM NÚMERO INVÁLIDO DE MESA
+                    elif TABELA['mesa'][index]:
+                        opc = trata_pedir(message) # retorna a opcao que o cliente escolheu
+                        print('escolhido: ',opc)
+                        if opc == 1:
+                            msg = CARDAPIO
+                        if opc == 2:
+                            msg = 'Digite qual o primeiro item que gostaria (número ou por extenso)' 
+                            IS_PEDIDO[client_key] = True       
+                        if opc == 3:
+                            conta = informa_conta_individual(TABELA)
+                            msg = str(conta)
+                        if opc == 4:
+                            msg = 'Nao seja mal educado'
+                        if opc == 5:
+                            msg = LISTA_OPCOES
+                        if opc == 6:
+                            conta = conta_mesa_alt(TABELA, TABELA['mesa'][index])
+                            msg = str(conta)
+                            print(conta)
                 print(TABELA)
-                send_data(UDPServerSocket, msg, address)
+                packet = ACKS[client_key] + checksum(msg) + str(msg)
+                send_data(UDPServerSocket, packet, address)
                 # Atualiza ACKS do servidor
+                
                 if ACKS[client_key] == '1':
                     ACKS[client_key] ='0'
                 else:

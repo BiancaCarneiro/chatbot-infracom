@@ -26,7 +26,7 @@ def client():
     bytesToSend   = '0' + checksum(name)+name
 
 
-    # Create a UDP socket at client side
+    # Cria socket UDP no client
     UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
     # Enviar para o servidor usando o socket UDP criado
@@ -45,6 +45,8 @@ def client():
         msg           = f"{time.strftime('%H:%M', t)} CINtofome: " + packet[17:]
         print(msg)
         msgFromClient = input(f'{time.strftime("%H:%M", t)} {name}: ') # Coloca a data e o nome do cliente
+        if not msgFromClient:
+            msgFromClient = " "
         bytesToSend   = ack + checksum(msgFromClient)+msgFromClient
         UDPClientSocket.sendto(bytesToSend.encode(), serverAddressPort)   
         
